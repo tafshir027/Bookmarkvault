@@ -1,0 +1,26 @@
+{
+  "bookmarks": [],
+  "categories": [
+    {
+      "name": "Work",
+      "color": "#7c3aed"
+    },
+    {
+      "name": "Personal",
+      "color": "#059669"
+    },
+    {
+      "name": "Learning",
+      "color": "#d97706"
+    },
+    {
+      "name": "Tools",
+      "color": "#e11d48"
+    },
+    {
+      "name": "Entertainment",
+      "color": "#0284c7"
+    }
+  ],
+  "nextId": 1
+}
