@@ -1,5 +1,18 @@
 {
-  "bookmarks": [],
+  "bookmarks": [
+    {
+      "id": 1,
+      "url": "https://tafshir027.github.io/Taskmaster/",
+      "title": "Task Master Pro",
+      "category": "Personal",
+      "description": "",
+      "tags": [
+        "Tools"
+      ],
+      "favicon": "https://www.google.com/s2/favicons?sz=64&domain_url=https%3A%2F%2Ftafshir027.github.io%2FTaskmaster%2F",
+      "createdAt": "2026-06-19T08:47:24.058Z"
+    }
+  ],
   "categories": [
     {
       "name": "Work",
@@ -22,5 +35,5 @@
       "color": "#0284c7"
     }
   ],
-  "nextId": 1
+  "nextId": 2
 }
