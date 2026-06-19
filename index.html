@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BookmarkVault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* ── TOKENS ── */
+:root {
+  --p1:#7c3aed;--p2:#a78bfa;--p3:#ede9fe;
+  --e1:#059669;--e2:#6ee7b7;--e3:#d1fae5;
+  --a1:#d97706;--a2:#fde68a;
+  --r1:#e11d48;--r2:#fda4af;
+  --s1:#0284c7;--s2:#bae6fd;
+  --bg:#f0f4ff;--bg2:#e8eeff;
+  --glass:rgba(255,255,255,0.65);--glass2:rgba(255,255,255,0.45);--glass3:rgba(255,255,255,0.3);
+  --border:rgba(124,58,237,0.15);--border2:rgba(124,58,237,0.25);
+  --text:#1e1b4b;--text2:#4c4f7a;--text3:#9598c8;
+  --shadow:0 8px 32px rgba(124,58,237,0.10);--shadow2:0 16px 48px rgba(124,58,237,0.18);
+  --blur:blur(18px);
+}
+[data-theme="dark"]{
+  --bg:#0f0a1e;--bg2:#160d2e;
+  --glass:rgba(30,20,60,0.75);--glass2:rgba(30,20,60,0.55);--glass3:rgba(30,20,60,0.38);
+  --border:rgba(167,139,250,0.18);--border2:rgba(167,139,250,0.32);
+  --text:#ede9fe;--text2:#a8a4d4;--text3:#5a5680;
+  --shadow:0 8px 32px rgba(0,0,0,0.45);--shadow2:0 16px 48px rgba(0,0,0,0.6);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;position:relative;overflow-x:hidden;}
+.blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:.35;pointer-events:none;z-index:0;transition:opacity .3s;}
+.blob1{width:600px;height:600px;background:radial-gradient(circle,#c4b5fd,#818cf8);top:-200px;left:-200px;}
+.blob2{width:500px;height:500px;background:radial-gradient(circle,#a7f3d0,#6ee7b7);bottom:-150px;right:-100px;}
+.blob3{width:350px;height:350px;background:radial-gradient(circle,#fde68a,#fca5a5);top:40%;left:55%;}
+[data-theme="dark"] .blob{opacity:.18;}
+.wrap{position:relative;z-index:1;}
+
+/* HEADER */
+.header{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid var(--border2);padding:16px 20px 0;position:sticky;top:0;z-index:200;box-shadow:var(--shadow);}
+.header-inner{max-width:1200px;margin:0 auto;}
+.header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px;}
+.brand{display:flex;align-items:center;gap:11px;}
+.brand-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--p1),var(--p2));display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 16px rgba(124,58,237,.4);flex-shrink:0;}
+.brand h1{font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:700;background:linear-gradient(135deg,var(--p1),#e879f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;}
+.brand p{font-size:11px;color:var(--text2);margin-top:2px;}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.hstats{display:flex;gap:6px;flex-wrap:wrap;}
+.hstat{background:var(--glass2);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:20px;padding:5px 12px;display:flex;align-items:center;gap:6px;min-width:60px;}
+.hstat .val{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;background:linear-gradient(135deg,var(--p1),var(--e1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hstat .lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;}
+.theme-toggle{width:36px;height:36px;border-radius:10px;background:var(--glass2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .2s;color:var(--text2);flex-shrink:0;}
+.theme-toggle:hover{background:var(--glass);color:var(--text);border-color:var(--border2);}
+.sync-indicator{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3);padding:4px 10px;border-radius:20px;background:var(--glass2);border:1px solid var(--border);transition:all .3s;}
+.sync-indicator.syncing{color:var(--a1);border-color:rgba(217,119,6,.3);}
+.sync-indicator.synced{color:var(--e1);border-color:rgba(5,150,105,.3);}
+.sync-indicator.error{color:var(--r1);border-color:rgba(225,29,72,.3);}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.sync-indicator.syncing .sync-dot{animation:pulse .8s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.tabs{display:flex;gap:0;}
+.tab-btn{padding:10px 20px;font-size:13px;font-weight:500;font-family:'Inter',sans-serif;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--p1);border-bottom-color:var(--p1);}
+[data-theme="dark"] .tab-btn.active{color:var(--p2);border-bottom-color:var(--p2);}
+
+/* LAYOUT */
+.main{max-width:1200px;margin:0 auto;padding:24px 16px 80px;}
+.card{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--border2);border-radius:20px;padding:22px;margin-bottom:20px;box-shadow:var(--shadow);transition:background .3s,border .3s,box-shadow .3s;}
+.card:hover{box-shadow:var(--shadow2);}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:9px;}
+.ctag{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.ctag-p{background:linear-gradient(135deg,#ede9fe,#ddd6fe);color:var(--p1);}
+.ctag-e{background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:var(--e1);}
+.ctag-a{background:linear-gradient(135deg,#fef3c7,#fde68a);color:var(--a1);}
+.ctag-r{background:linear-gradient(135deg,#ffe4e6,#fecdd3);color:var(--r1);}
+.ctag-s{background:linear-gradient(135deg,#e0f2fe,#bae6fd);color:var(--s1);}
+[data-theme="dark"] .ctag-p{background:rgba(124,58,237,.25);color:var(--p2);}
+[data-theme="dark"] .ctag-e{background:rgba(5,150,105,.2);color:var(--e2);}
+[data-theme="dark"] .ctag-a{background:rgba(217,119,6,.2);color:var(--a2);}
+[data-theme="dark"] .ctag-r{background:rgba(225,29,72,.2);color:var(--r2);}
+[data-theme="dark"] .ctag-s{background:rgba(2,132,199,.2);color:var(--s2);}
+
+/* FORM */
+.form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.fg{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px;}
+.fg label{font-size:11.5px;font-weight:600;color:var(--text2);letter-spacing:.03em;text-transform:uppercase;}
+.fc{padding:10px 13px;background:var(--glass2);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;width:100%;transition:border-color .2s,box-shadow .2s;}
+.fc::placeholder{color:var(--text3);}
+.fc:focus{border-color:var(--p1);box-shadow:0 0 0 3px rgba(124,58,237,.15);}
+textarea.fc{resize:vertical;min-height:60px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:12px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border:none;transition:all .18s;white-space:nowrap;text-decoration:none;}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:9px;}
+.btn-icon{width:32px;height:32px;padding:0;border-radius:9px;}
+.btn-p{background:linear-gradient(135deg,var(--p1),#9333ea);color:#fff;box-shadow:0 4px 14px rgba(124,58,237,.3);}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,.45);}
+.btn-e{background:linear-gradient(135deg,var(--e1),#10b981);color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.28);}
+.btn-e:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(5,150,105,.42);}
+.btn-r{background:linear-gradient(135deg,var(--r1),#f43f5e);color:#fff;box-shadow:0 4px 14px rgba(225,29,72,.28);}
+.btn-r:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(225,29,72,.42);}
+.btn-a{background:linear-gradient(135deg,var(--a1),#f59e0b);color:#fff;box-shadow:0 4px 14px rgba(217,119,6,.28);}
+.btn-a:hover{transform:translateY(-1px);}
+.btn-s{background:linear-gradient(135deg,var(--s1),#0ea5e9);color:#fff;box-shadow:0 4px 14px rgba(2,132,199,.28);}
+.btn-s:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(2,132,199,.42);}
+.btn-g{background:var(--glass2);border:1px solid var(--border);color:var(--text2);backdrop-filter:blur(8px);}
+.btn-g:hover{background:var(--glass);color:var(--text);border-color:var(--border2);}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none!important;}
+
+/* BOOKMARK GRID */
+.bm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.bm-card{background:var(--glass);backdrop-filter:var(--blur);border:1px solid var(--border2);border-radius:18px;padding:18px;position:relative;overflow:hidden;transition:all .22s;display:flex;flex-direction:column;gap:10px;}
+.bm-card:hover{transform:translateY(-3px);box-shadow:var(--shadow2);}
+.bm-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--p1),#e879f9,var(--e2));}
+.bm-top{display:flex;align-items:flex-start;gap:11px;}
+.bm-favicon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--p3),#ddd6fe);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden;border:1px solid var(--border);}
+.bm-favicon img{width:100%;height:100%;object-fit:cover;border-radius:11px;}
+.bm-info{flex:1;min-width:0;}
+.bm-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);line-height:1.3;word-break:break-word;margin-bottom:3px;}
+.bm-url{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bm-desc{font-size:12px;color:var(--text2);line-height:1.55;}
+.bm-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.bm-tag{font-size:10.5px;font-weight:600;background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(167,139,250,.1));color:var(--p1);padding:2px 9px;border-radius:20px;border:1px solid var(--border);}
+[data-theme="dark"] .bm-tag{background:rgba(167,139,250,.15);color:var(--p2);}
+.bm-acts{display:flex;gap:6px;margin-top:auto;}
+.bm-acts .btn{flex:1;}
+
+/* CATEGORY PILL */
+.cat-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(124,58,237,.1);color:var(--p1);border:1px solid var(--border);}
+[data-theme="dark"] .cat-pill{background:rgba(124,58,237,.2);color:var(--p2);}
+
+/* SEARCH BAR */
+.search-wrap{position:relative;margin-bottom:20px;}
+.search-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none;}
+.search-input{padding:11px 14px 11px 40px;width:100%;}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+.filter-btn{padding:5px 14px;font-size:12px;font-weight:600;border-radius:20px;border:1px solid var(--border);background:var(--glass2);color:var(--text2);cursor:pointer;transition:all .18s;font-family:'Inter',sans-serif;}
+.filter-btn:hover{background:var(--glass);color:var(--text);}
+.filter-btn.active{background:linear-gradient(135deg,var(--p1),#9333ea);color:#fff;border-color:var(--p1);}
+
+/* SETUP */
+.setup-screen{min-height:80vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.setup-box{background:var(--glass);backdrop-filter:var(--blur);border:1px solid var(--border2);border-radius:24px;padding:36px 32px;max-width:480px;width:100%;box-shadow:var(--shadow2);text-align:center;}
+.setup-box .icon{font-size:3rem;margin-bottom:16px;display:block;}
+.setup-box h2{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:8px;}
+.setup-box p{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:24px;}
+.setup-box .form-fields{text-align:left;margin-bottom:20px;}
+.setup-note{font-size:11.5px;color:var(--text3);margin-top:5px;line-height:1.5;}
+.setup-note a{color:var(--p1);text-decoration:none;}
+.setup-note a:hover{text-decoration:underline;}
+[data-theme="dark"] .setup-note a{color:var(--p2);}
+.setup-warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--a1);text-align:left;margin-bottom:16px;line-height:1.6;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.empty{text-align:center;padding:36px 16px;color:var(--text3);}
+.empty i{font-size:2.5rem;margin-bottom:12px;display:block;opacity:.4;}
+.empty p{font-size:13px;color:var(--text2);}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);z-index:2000;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--glass);backdrop-filter:var(--blur);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2);}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--border);}
+.modal-head h3{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:var(--text);}
+.modal-body{padding:18px 20px;}
+.modal-foot{display:flex;justify-content:flex-end;gap:9px;padding:13px 20px;border-top:1px solid var(--border);}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:16px;background:var(--glass);backdrop-filter:var(--blur);border:1px solid var(--border2);border-radius:16px;padding:13px 16px;display:flex;align-items:flex-start;gap:11px;box-shadow:var(--shadow2);max-width:300px;z-index:3000;transform:translateY(120%);opacity:0;transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ts{border-left:3px solid var(--e1);}
+.toast.te{border-left:3px solid var(--r1);}
+.toast.ti{border-left:3px solid var(--s1);}
+.toast.tw{border-left:3px solid var(--a1);}
+.toast-ic{font-size:15px;flex-shrink:0;margin-top:1px;}
+.toast.ts .toast-ic{color:var(--e1);}
+.toast.te .toast-ic{color:var(--r1);}
+.toast.ti .toast-ic{color:var(--s1);}
+.toast.tw .toast-ic{color:var(--a1);}
+.toast h4{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.toast p{font-size:11.5px;color:var(--text2);line-height:1.4;}
+
+/* MISC */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--glass2);border:1px solid var(--border);border-radius:16px;padding:14px 16px;text-align:center;}
+.stat-card .sv{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;background:linear-gradient(135deg,var(--p1),var(--e1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-card .sl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-top:3px;}
+.recently-added{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;padding-right:2px;}
+.recently-added::-webkit-scrollbar{width:4px;}
+.recently-added::-webkit-scrollbar-thumb{background:rgba(124,58,237,.25);border-radius:2px;}
+.ra-item{display:flex;align-items:center;gap:11px;padding:10px 13px;background:var(--glass2);border:1px solid var(--border);border-radius:13px;border-left:3px solid var(--p1);transition:all .2s;cursor:pointer;text-decoration:none;}
+.ra-item:hover{background:var(--glass);border-color:var(--border2);transform:translateX(2px);}
+.ra-favicon{width:28px;height:28px;border-radius:8px;background:var(--glass3);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden;}
+.ra-favicon img{width:100%;height:100%;object-fit:cover;border-radius:7px;}
+.ra-info{flex:1;min-width:0;}
+.ra-title{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ra-url{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ra-time{font-size:10px;color:var(--text3);flex-shrink:0;}
+.color-swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.swatch{width:28px;height:28px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+.swatch.sel{border-color:var(--text);transform:scale(1.15);}
+@media(max-width:900px){.two-col{grid-template-columns:1fr;}}
+@media(max-width:600px){
+  .header{padding:13px 13px 0;}.brand h1{font-size:1.05rem;}.hstats{gap:5px;}.hstat{padding:4px 9px;}.hstat .val{font-size:.9rem;}.hstat .lbl{display:none;}
+  .main{padding:14px 10px 60px;}.card{padding:15px;}.bm-grid{grid-template-columns:1fr;}.setup-box{padding:24px 18px;}.tab-btn{padding:9px 13px;font-size:12px;}
+  .sync-indicator span{display:none;}.stats-row{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+<div class="wrap">
+
+<!-- SETUP -->
+<div id="setup-screen" style="display:none;">
+  <div style="display:flex;justify-content:flex-end;padding:16px 20px;">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+  </div>
+  <div class="setup-screen">
+    <div class="setup-box">
+      <span class="icon">🔖</span>
+      <h2>Connect GitHub Storage</h2>
+      <p>Enter your GitHub details once. Bookmarks will be saved to your repo as <code style="background:rgba(124,58,237,.1);padding:1px 6px;border-radius:4px;">bookmarks.json</code> and synced across all devices.</p>
+      <div class="setup-warn">⚠️ Keep this repo private — it will contain your access token.</div>
+      <div class="setup-fields">
+        <div class="fg" style="margin-bottom:12px;">
+          <label>GitHub Username</label>
+          <input type="text" id="s-owner" class="fc" placeholder="yourusername">
+        </div>
+        <div class="fg" style="margin-bottom:12px;">
+          <label>Repository Name</label>
+          <input type="text" id="s-repo" class="fc" placeholder="my-bookmarks">
+          <div class="setup-note">Data saved as <code style="background:rgba(124,58,237,.1);padding:1px 5px;border-radius:4px;">bookmarks.json</code> in this repo.</div>
+        </div>
+        <div class="fg" style="margin-bottom:20px;">
+          <label>Personal Access Token</label>
+          <input type="password" id="s-token" class="fc" placeholder="ghp_xxxxxxxxxxxx">
+          <div class="setup-note">
+            Needs <code style="background:rgba(124,58,237,.1);padding:1px 5px;border-radius:4px;">repo</code> scope.
+            <a href="https://github.com/settings/tokens/new?scopes=repo&description=BookmarkVault" target="_blank">Create token →</a>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-p" id="setup-btn" onclick="doSetup()" style="width:100%;justify-content:center;">
+        <i class="fas fa-plug"></i> Save & Connect
+      </button>
+      <div style="margin-top:14px;">
+        <button class="btn btn-g btn-sm" onclick="useLocalOnly()" style="width:100%;justify-content:center;">
+          Use without GitHub (local only)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;">
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-icon">🔖</div>
+          <div>
+            <h1>BookmarkVault</h1>
+            <p id="gh-label">Loading...</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="hstats">
+            <div class="hstat"><span class="val" id="h-total">0</span><span class="lbl">Saved</span></div>
+            <div class="hstat"><span class="val" id="h-cats">0</span><span class="lbl">Categories</span></div>
+            <div class="hstat"><span class="val" id="h-recent">0</span><span class="lbl">This Week</span></div>
+          </div>
+          <div class="sync-indicator" id="sync-ind">
+            <div class="sync-dot"></div>
+            <span id="sync-txt">Ready</span>
+          </div>
+          <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙</button>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="goTab('home',this)"><i class="fas fa-house"></i> Home</button>
+        <button class="tab-btn" onclick="goTab('all',this)"><i class="fas fa-bookmark"></i> All Bookmarks</button>
+        <button class="tab-btn" onclick="goTab('manage',this)"><i class="fas fa-sliders"></i> Manage</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- HOME TAB -->
+    <div class="tab-panel active" id="panel-home">
+      <!-- Stats -->
+      <div class="stats-row" id="stats-row"></div>
+      <div class="two-col">
+        <!-- Add Bookmark -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="ctag ctag-p"><i class="fas fa-plus"></i></div>Add Bookmark</div>
+          </div>
+          <div class="form-row">
+            <div class="fg" style="flex:3;">
+              <label>URL</label>
+              <input type="text" id="b-url" class="fc" placeholder="https://example.com">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="fg" style="flex:2;">
+              <label>Title</label>
+              <input type="text" id="b-title" class="fc" placeholder="My Awesome Site">
+            </div>
+            <div class="fg" style="flex:1;min-width:120px;">
+              <label>Category</label>
+              <input type="text" id="b-cat" class="fc" placeholder="Work" list="cat-list">
+              <datalist id="cat-list"></datalist>
+            </div>
+          </div>
+          <div class="fg" style="margin-bottom:12px;">
+            <label>Description (optional)</label>
+            <input type="text" id="b-desc" class="fc" placeholder="Brief note about this site...">
+          </div>
+          <div class="fg" style="margin-bottom:14px;">
+            <label>Tags (comma separated)</label>
+            <input type="text" id="b-tags" class="fc" placeholder="design, tools, reference">
+          </div>
+          <button class="btn btn-p" id="add-bm-btn" onclick="addBookmark()" style="width:100%;">
+            <i class="fas fa-bookmark"></i> Save Bookmark
+          </button>
+        </div>
+
+        <!-- Recently Added -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="ctag ctag-e"><i class="fas fa-clock"></i></div>Recently Added</div>
+            <button class="btn btn-g btn-sm" onclick="goTab('all',document.querySelectorAll('.tab-btn')[1])"><i class="fas fa-arrow-right"></i> See All</button>
+          </div>
+          <div class="recently-added" id="recent-list">
+            <div class="empty"><i class="fas fa-bookmark"></i><p>No bookmarks yet.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Overview -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="ctag ctag-s"><i class="fas fa-folder"></i></div>Categories</div>
+        </div>
+        <div id="cats-overview" class="bm-grid"></div>
+      </div>
+    </div>
+
+    <!-- ALL BOOKMARKS TAB -->
+    <div class="tab-panel" id="panel-all">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="ctag ctag-p"><i class="fas fa-bookmark"></i></div>All Bookmarks</div>
+          <span id="bm-count" style="font-size:12px;color:var(--text2);">0 saved</span>
+        </div>
+        <div class="search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" class="fc search-input" id="search-inp" placeholder="Search bookmarks, tags, descriptions..." oninput="renderAll()">
+        </div>
+        <div class="filter-row" id="filter-row"></div>
+        <div class="bm-grid" id="all-bm-grid">
+          <div class="empty"><i class="fas fa-bookmark"></i><p>No bookmarks yet.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGE TAB -->
+    <div class="tab-panel" id="panel-manage">
+      <!-- Manage Categories -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="ctag ctag-a"><i class="fas fa-folder-plus"></i></div>Add Category</div>
+        </div>
+        <div class="form-row" style="align-items:flex-end;">
+          <div class="fg">
+            <label>Category Name</label>
+            <input type="text" id="nc-name" class="fc" placeholder="e.g. Development">
+          </div>
+          <div class="fg" style="flex:0 0 auto;min-width:0;">
+            <label>Color</label>
+            <div class="color-swatches" id="color-swatches"></div>
+          </div>
+          <div style="flex-shrink:0;">
+            <button class="btn btn-e" onclick="addCategory()"><i class="fas fa-plus"></i> Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Bookmarks Manage -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="ctag ctag-s"><i class="fas fa-list"></i></div>Manage Bookmarks</div>
+        </div>
+        <div class="bm-grid" id="manage-bm-grid"></div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="card" style="border-color:rgba(225,29,72,.2);">
+        <div class="card-header">
+          <div class="card-title"><div class="ctag ctag-r"><i class="fas fa-triangle-exclamation"></i></div>Danger Zone</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-r" onclick="doReset()"><i class="fas fa-trash"></i> Reset All Data</button>
+          <button class="btn btn-g btn-sm" onclick="reconnect()"><i class="fas fa-plug"></i> Change GitHub Config</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="edit-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>✏️ Edit Bookmark</h3>
+      <button class="btn btn-g btn-icon" onclick="closeModal('edit-modal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="e-id">
+      <div class="fg" style="margin-bottom:12px;"><label>URL</label><input type="text" id="e-url" class="fc"></div>
+      <div class="fg" style="margin-bottom:12px;"><label>Title</label><input type="text" id="e-title" class="fc"></div>
+      <div class="fg" style="margin-bottom:12px;"><label>Category</label><input type="text" id="e-cat" class="fc" list="e-cat-list"><datalist id="e-cat-list"></datalist></div>
+      <div class="fg" style="margin-bottom:12px;"><label>Description</label><input type="text" id="e-desc" class="fc"></div>
+      <div class="fg"><label>Tags (comma separated)</label><input type="text" id="e-tags" class="fc"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-g" onclick="closeModal('edit-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="saveEdit()"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-ic" id="t-ic"></span>
+  <div><h4 id="t-h"></h4><p id="t-p"></p></div>
+</div>
+
+<script>
+// ══ CONFIG ══
+let GH = {owner:'', repo:'', token:''};
+const GH_FILE = 'bookmarks.json';
+
+// ══ STATE ══
+let app = {bookmarks:[], categories:[], nextId:1};
+let ghSha = null;
+let saveQueue = Promise.resolve();
+let selectedColor = '#7c3aed';
+
+const CAT_COLORS = ['#7c3aed','#059669','#d97706','#e11d48','#0284c7','#db2777','#0891b2','#65a30d','#ea580c','#7c3aed'];
+const DEFAULT_CATS = ['Work','Personal','Learning','Tools','Entertainment'];
+
+// ══ INIT ══
+document.addEventListener('DOMContentLoaded', async () => {
+  applyTheme();
+  buildColorSwatches();
+  try { GH = JSON.parse(localStorage.getItem('bvGH')||'{}'); } catch(e){GH={};}
+  if (!GH.owner || !GH.token) {
+    if (localStorage.getItem('bvLocalOnly')==='1') startApp(false);
+    else document.getElementById('setup-screen').style.display='block';
+    return;
+  }
+  startApp(true);
+});
+
+async function startApp(useGH) {
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('gh-label').textContent = useGH ? `${GH.owner}/${GH.repo}` : 'Local storage only';
+
+  if (useGH) {
+    setSyncStatus('syncing','Loading...');
+    try {
+      const d = await ghLoad();
+      if (d) {
+        app = d;
+        setSyncStatus('synced','Synced');
+      } else {
+        app.categories = DEFAULT_CATS.map((n,i)=>({name:n,color:CAT_COLORS[i]}));
+        setSyncStatus('syncing','Creating...');
+        await ghSave(app);
+        setSyncStatus('synced','Synced');
+      }
+    } catch(e) {
+      setSyncStatus('error','Load failed');
+      showToast('Load failed', e.message, 'e');
+      tryLocalFallback();
+    }
+  } else {
+    tryLocalFallback();
+  }
+  render();
+  document.getElementById('b-url').addEventListener('keydown', e => { if(e.key==='Enter') addBookmark(); });
+}
+
+function tryLocalFallback() {
+  try {
+    const s = localStorage.getItem('bvData');
+    if (s) { app = JSON.parse(s); return; }
+  } catch(e){}
+  app.categories = DEFAULT_CATS.map((n,i)=>({name:n,color:CAT_COLORS[i]}));
+}
+
+// ══ SYNC ══
+function setSyncStatus(state, text) {
+  const el = document.getElementById('sync-ind');
+  const tx = document.getElementById('sync-txt');
+  if (!el) return;
+  el.className = 'sync-indicator ' + state;
+  tx.textContent = text;
+}
+
+// ══ SETUP ══
+async function doSetup() {
+  const owner = document.getElementById('s-owner').value.trim();
+  const repo  = document.getElementById('s-repo').value.trim();
+  const token = document.getElementById('s-token').value.trim();
+  if (!owner||!repo||!token){showToast('Missing','Fill in all fields','e');return;}
+  const btn = document.getElementById('setup-btn');
+  btn.innerHTML='<span class="spinner"></span> Connecting...'; btn.disabled=true;
+  try {
+    const url=`https://api.github.com/repos/${owner}/${repo}/contents/${GH_FILE}`;
+    const r=await fetch(url,{headers:ghHead({owner,repo,token})});
+    if(r.status!==200&&r.status!==404){
+      const e=await r.json().catch(()=>({}));
+      throw new Error(e.message||`HTTP ${r.status}`);
+    }
+    GH={owner,repo,token};
+    localStorage.setItem('bvGH',JSON.stringify(GH));
+    localStorage.removeItem('bvLocalOnly');
+    startApp(true);
+  } catch(e) {
+    showToast('Connection failed', e.message, 'e');
+  }
+  btn.innerHTML='<i class="fas fa-plug"></i> Save & Connect'; btn.disabled=false;
+}
+
+function useLocalOnly() {
+  localStorage.setItem('bvLocalOnly','1');
+  startApp(false);
+}
+
+function reconnect() {
+  localStorage.removeItem('bvGH');
+  localStorage.removeItem('bvLocalOnly');
+  GH={}; ghSha=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('setup-screen').style.display='block';
+}
+
+// ══ GITHUB API ══
+function ghHead(cfg=GH){
+  return{
+    'Authorization':`token ${cfg.token}`,
+    'Accept':'application/vnd.github.v3+json',
+    'Content-Type':'application/json',
+    'X-GitHub-Api-Version':'2022-11-28'
+  };
+}
+function toB64(s){const b=new TextEncoder().encode(s);let r='';b.forEach(x=>r+=String.fromCharCode(x));return btoa(r);}
+function frB64(b){const bin=atob(b.replace(/\n/g,''));return new TextDecoder().decode(new Uint8Array([...bin].map(c=>c.charCodeAt(0))));}
+
+async function ghLoad(){
+  const r=await fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH_FILE}`,{headers:ghHead()});
+  if(r.status===404){ghSha=null;return null;}
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.message||`HTTP ${r.status}`);}
+  const d=await r.json();
+  ghSha=d.sha;
+  return JSON.parse(frB64(d.content));
+}
+
+async function ghSave(data){
+  const body={message:'BookmarkVault update',content:toB64(JSON.stringify(data,null,2))};
+  if(ghSha) body.sha=ghSha;
+  const r=await fetch(
+    `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH_FILE}`,
+    {method:'PUT',headers:ghHead(),body:JSON.stringify(body)}
+  );
+  if(r.status===409){
+    await ghLoad();
+    const body2={message:'BookmarkVault update',content:toB64(JSON.stringify(data,null,2)),sha:ghSha};
+    const r2=await fetch(
+      `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${GH_FILE}`,
+      {method:'PUT',headers:ghHead(),body:JSON.stringify(body2)}
+    );
+    if(!r2.ok){const e=await r2.json().catch(()=>({}));throw new Error(e.message||`HTTP ${r2.status}`);}
+    const d2=await r2.json(); ghSha=d2.content.sha; return;
+  }
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.message||`HTTP ${r.status}`);}
+  const d=await r.json(); ghSha=d.content.sha;
+}
+
+function persist(){
+  localStorage.setItem('bvData', JSON.stringify(app));
+  if(!GH.owner || !GH.token) return Promise.resolve();
+  saveQueue = saveQueue.then(async () => {
+    setSyncStatus('syncing','Saving...');
+    try {
+      await ghSave(JSON.parse(JSON.stringify(app)));
+      setSyncStatus('synced','Saved ✓');
+      setTimeout(()=>setSyncStatus('synced','Synced'),2000);
+    } catch(e) {
+      setSyncStatus('error','Save failed');
+      showToast('Save failed', e.message, 'e');
+    }
+  });
+  return saveQueue;
+}
+
+// ══ BOOKMARKS ══
+async function addBookmark(){
+  let url = document.getElementById('b-url').value.trim();
+  const title = document.getElementById('b-title').value.trim();
+  const cat   = document.getElementById('b-cat').value.trim();
+  const desc  = document.getElementById('b-desc').value.trim();
+  const tags  = document.getElementById('b-tags').value.trim().split(',').map(t=>t.trim()).filter(Boolean);
+
+  if(!url){showToast('Missing URL','Enter a URL to save','e');return;}
+  if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+  const btn = document.getElementById('add-bm-btn');
+  btn.innerHTML='<span class="spinner"></span>'; btn.disabled=true;
+
+  const bm = {
+    id: app.nextId++,
+    url,
+    title: title || getHostname(url),
+    category: cat || 'General',
+    description: desc,
+    tags,
+    favicon: `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(url)}`,
+    createdAt: new Date().toISOString()
+  };
+
+  // Auto-add category if new
+  if(bm.category && !app.categories.find(c=>c.name===bm.category)){
+    app.categories.push({name:bm.category, color: CAT_COLORS[app.categories.length % CAT_COLORS.length]});
+  }
+
+  app.bookmarks.unshift(bm);
+  document.getElementById('b-url').value='';
+  document.getElementById('b-title').value='';
+  document.getElementById('b-cat').value='';
+  document.getElementById('b-desc').value='';
+  document.getElementById('b-tags').value='';
+
+  render();
+  await persist();
+  btn.innerHTML='<i class="fas fa-bookmark"></i> Save Bookmark'; btn.disabled=false;
+  showToast('Saved! 🔖', `"${bm.title}" added`, 's');
+}
+
+async function deleteBookmark(id){
+  const bm = app.bookmarks.find(x=>x.id===id); if(!bm)return;
+  if(!confirm(`Delete "${bm.title}"?`))return;
+  app.bookmarks = app.bookmarks.filter(x=>x.id!==id);
+  render();
+  await persist();
+  showToast('Deleted', `"${bm.title}" removed`, 'w');
+}
+
+function openEdit(id){
+  const bm = app.bookmarks.find(x=>x.id===id); if(!bm)return;
+  document.getElementById('e-id').value = id;
+  document.getElementById('e-url').value = bm.url;
+  document.getElementById('e-title').value = bm.title;
+  document.getElementById('e-cat').value = bm.category||'';
+  document.getElementById('e-desc').value = bm.description||'';
+  document.getElementById('e-tags').value = (bm.tags||[]).join(', ');
+  // populate datalist
+  const dl = document.getElementById('e-cat-list');
+  dl.innerHTML = app.categories.map(c=>`<option value="${esc(c.name)}">`).join('');
+  openModal('edit-modal');
+}
+
+async function saveEdit(){
+  const id = parseInt(document.getElementById('e-id').value);
+  const bm = app.bookmarks.find(x=>x.id===id); if(!bm)return;
+  let url = document.getElementById('e-url').value.trim();
+  if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  bm.url = url;
+  bm.title = document.getElementById('e-title').value.trim() || bm.title;
+  bm.category = document.getElementById('e-cat').value.trim() || bm.category;
+  bm.description = document.getElementById('e-desc').value.trim();
+  bm.tags = document.getElementById('e-tags').value.trim().split(',').map(t=>t.trim()).filter(Boolean);
+  bm.favicon = `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(bm.url)}`;
+
+  if(bm.category && !app.categories.find(c=>c.name===bm.category)){
+    app.categories.push({name:bm.category, color: CAT_COLORS[app.categories.length % CAT_COLORS.length]});
+  }
+
+  closeModal('edit-modal');
+  render();
+  await persist();
+  showToast('Updated', `"${bm.title}" saved`, 's');
+}
+
+// ══ CATEGORIES ══
+function addCategory(){
+  const name = document.getElementById('nc-name').value.trim();
+  if(!name){showToast('Missing','Enter a category name','e');return;}
+  if(app.categories.find(c=>c.name===name)){showToast('Exists','Category already exists','w');return;}
+  app.categories.push({name, color: selectedColor});
+  document.getElementById('nc-name').value='';
+  render();
+  persist();
+  showToast('Added', `Category "${name}" created`, 's');
+}
+
+// ══ RENDER ══
+function render(){
+  renderStats();
+  renderRecent();
+  renderCatsOverview();
+  renderAll();
+  renderManage();
+  updateCatDatalist();
+}
+
+function renderStats(){
+  const total = app.bookmarks.length;
+  const cats  = new Set(app.bookmarks.map(b=>b.category)).size;
+  const week  = app.bookmarks.filter(b=>{
+    const d = new Date(b.createdAt);
+    return (Date.now()-d)/(1000*60*60*24) <= 7;
+  }).length;
+  document.getElementById('h-total').textContent  = total;
+  document.getElementById('h-cats').textContent   = cats;
+  document.getElementById('h-recent').textContent = week;
+
+  const statDefs = [
+    {label:'Total Saved', val:total, icon:'fas fa-bookmark', color:'var(--p1)'},
+    {label:'Categories',  val:cats,  icon:'fas fa-folder',   color:'var(--s1)'},
+    {label:'This Week',   val:week,  icon:'fas fa-calendar', color:'var(--e1)'},
+    {label:'Tags Used',   val:new Set(app.bookmarks.flatMap(b=>b.tags||[])).size, icon:'fas fa-tags', color:'var(--a1)'},
+  ];
+  document.getElementById('stats-row').innerHTML = statDefs.map(s=>`
+    <div class="stat-card">
+      <div class="sv">${s.val}</div>
+      <div class="sl"><i class="${s.icon}" style="color:${s.color};margin-right:4px;"></i>${s.label}</div>
+    </div>`).join('');
+}
+
+function renderRecent(){
+  const list = document.getElementById('recent-list');
+  const recent = app.bookmarks.slice(0,8);
+  if(!recent.length){
+    list.innerHTML='<div class="empty"><i class="fas fa-bookmark"></i><p>No bookmarks yet. Add one!</p></div>';
+    return;
+  }
+  list.innerHTML = recent.map(b=>`
+    <a class="ra-item" href="${esc(b.url)}" target="_blank" rel="noopener">
+      <div class="ra-favicon">
+        <img src="${esc(b.favicon)}" onerror="this.parentElement.innerHTML='🔗'" alt="">
+      </div>
+      <div class="ra-info">
+        <div class="ra-title">${esc(b.title)}</div>
+        <div class="ra-url">${esc(getHostname(b.url))}</div>
+      </div>
+      <span class="ra-time">${timeAgo(b.createdAt)}</span>
+    </a>`).join('');
+}
+
+function renderCatsOverview(){
+  const el = document.getElementById('cats-overview');
+  if(!app.categories.length){
+    el.innerHTML='<div class="empty"><i class="fas fa-folder-open"></i><p>No categories yet.</p></div>';
+    return;
+  }
+  el.innerHTML = app.categories.map(cat=>{
+    const bms = app.bookmarks.filter(b=>b.category===cat.name);
+    return`<div class="bm-card" style="cursor:default;">
+      <div class="bm-top">
+        <div class="bm-favicon" style="background:${cat.color}22;border-color:${cat.color}44;">
+          <i class="fas fa-folder" style="color:${cat.color};font-size:18px;"></i>
+        </div>
+        <div class="bm-info">
+          <div class="bm-title">${esc(cat.name)}</div>
+          <div class="bm-url">${bms.length} bookmark${bms.length!==1?'s':''}</div>
+        </div>
+      </div>
+      <div class="bm-acts">
+        <button class="btn btn-s btn-sm" onclick="filterByCategory('${esc(cat.name)}')">
+          <i class="fas fa-eye"></i> View
+        </button>
+        <button class="btn btn-r btn-sm" onclick="deleteCategory('${esc(cat.name)}')">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAll(){
+  const query   = (document.getElementById('search-inp').value||'').toLowerCase();
+  const activeF = document.querySelector('.filter-btn.active');
+  const catFil  = activeF ? activeF.dataset.cat : '';
+
+  let bms = [...app.bookmarks];
+  if(query){
+    bms = bms.filter(b=>
+      b.title.toLowerCase().includes(query) ||
+      b.url.toLowerCase().includes(query) ||
+      (b.description||'').toLowerCase().includes(query) ||
+      (b.tags||[]).some(t=>t.toLowerCase().includes(query)) ||
+      (b.category||'').toLowerCase().includes(query)
+    );
+  }
+  if(catFil) bms = bms.filter(b=>b.category===catFil);
+
+  const allCats = [...new Set(app.bookmarks.map(b=>b.category).filter(Boolean))].sort();
+  const filterRow = document.getElementById('filter-row');
+  filterRow.innerHTML = `
+    <button class="filter-btn${!catFil?' active':''}" data-cat="" onclick="setFilter(this)">All</button>
+    ${allCats.map(c=>`<button class="filter-btn${catFil===c?' active':''}" data-cat="${esc(c)}" onclick="setFilter(this)">${esc(c)}</button>`).join('')}
+  `;
+
+  document.getElementById('bm-count').textContent = `${bms.length} bookmark${bms.length!==1?'s':''}`;
+  const grid = document.getElementById('all-bm-grid');
+  if(!bms.length){
+    grid.innerHTML='<div class="empty" style="grid-column:1/-1;"><i class="fas fa-search"></i><p>No bookmarks found.</p></div>';
+    return;
+  }
+  grid.innerHTML = bms.map(b=>bmCardHTML(b,'view')).join('');
+}
+
+function renderManage(){
+  const grid = document.getElementById('manage-bm-grid');
+  if(!app.bookmarks.length){
+    grid.innerHTML='<div class="empty" style="grid-column:1/-1;"><i class="fas fa-bookmark"></i><p>No bookmarks yet.</p></div>';
+    return;
+  }
+  grid.innerHTML = app.bookmarks.map(b=>bmCardHTML(b,'manage')).join('');
+}
+
+function bmCardHTML(b, mode){
+  const cat = app.categories.find(c=>c.name===b.category);
+  const color = cat ? cat.color : 'var(--p1)';
+  const acts = mode==='view'
+    ? `<a class="btn btn-s" href="${esc(b.url)}" target="_blank" rel="noopener" style="flex:2;">
+         <i class="fas fa-external-link-alt"></i> Open
+       </a>
+       <button class="btn btn-a btn-icon" onclick="openEdit(${b.id})" title="Edit"><i class="fas fa-pen"></i></button>
+       <button class="btn btn-r btn-icon" onclick="deleteBookmark(${b.id})" title="Delete"><i class="fas fa-trash"></i></button>`
+    : `<a class="btn btn-s btn-sm" href="${esc(b.url)}" target="_blank" rel="noopener">
+         <i class="fas fa-external-link-alt"></i> Open
+       </a>
+       <button class="btn btn-a btn-sm" onclick="openEdit(${b.id})"><i class="fas fa-pen"></i></button>
+       <button class="btn btn-r btn-sm" onclick="deleteBookmark(${b.id})"><i class="fas fa-trash"></i></button>`;
+
+  return`<div class="bm-card">
+    <div class="bm-top">
+      <div class="bm-favicon">
+        <img src="${esc(b.favicon)}" onerror="this.parentElement.innerHTML='🔗'" alt="">
+      </div>
+      <div class="bm-info">
+        <div class="bm-title">${esc(b.title)}</div>
+        <div class="bm-url">${esc(getHostname(b.url))}</div>
+      </div>
+    </div>
+    ${b.description?`<div class="bm-desc">${esc(b.description)}</div>`:''}
+    ${b.tags&&b.tags.length?`<div class="bm-tags">${b.tags.map(t=>`<span class="bm-tag">#${esc(t)}</span>`).join('')}</div>`:''}
+    <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+      <span class="cat-pill" style="background:${color}18;color:${color};border-color:${color}30;">
+        <i class="fas fa-folder" style="font-size:9px;"></i>${esc(b.category||'General')}
+      </span>
+      <span style="font-size:10px;color:var(--text3);margin-left:auto;">${timeAgo(b.createdAt)}</span>
+    </div>
+    <div class="bm-acts">${acts}</div>
+  </div>`;
+}
+
+// ══ CATEGORY ACTIONS ══
+async function deleteCategory(name){
+  if(!confirm(`Delete category "${name}"? Bookmarks will move to "General".`)) return;
+  app.categories = app.categories.filter(c=>c.name!==name);
+  app.bookmarks.forEach(b=>{ if(b.category===name) b.category='General'; });
+  render();
+  await persist();
+  showToast('Deleted', `Category "${name}" removed`, 'w');
+}
+
+function filterByCategory(cat){
+  goTab('all', document.querySelectorAll('.tab-btn')[1]);
+  setTimeout(()=>{
+    const btn = document.querySelector(`.filter-btn[data-cat="${cat}"]`);
+    if(btn) setFilter(btn);
+  }, 50);
+}
+
+function setFilter(btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll();
+}
+
+function updateCatDatalist(){
+  const dl = document.getElementById('cat-list');
+  if(dl) dl.innerHTML = app.categories.map(c=>`<option value="${esc(c.name)}">`).join('');
+}
+
+// ══ COLOR SWATCHES ══
+function buildColorSwatches(){
+  const el = document.getElementById('color-swatches');
+  if(!el)return;
+  el.innerHTML = CAT_COLORS.map(c=>`
+    <div class="swatch${c===selectedColor?' sel':''}" style="background:${c};" 
+         onclick="pickColor('${c}',this)" title="${c}"></div>`).join('');
+}
+function pickColor(color, el){
+  selectedColor = color;
+  document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+// ══ RESET ══
+async function doReset(){
+  if(!confirm('Reset ALL bookmarks and categories? Cannot be undone.')) return;
+  app = {bookmarks:[], categories: DEFAULT_CATS.map((n,i)=>({name:n,color:CAT_COLORS[i]})), nextId:1};
+  ghSha = null;
+  render();
+  await persist();
+  showToast('Reset','All data cleared','i');
+}
+
+// ══ TABS ══
+function goTab(name, btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if(name==='all') renderAll();
+  if(name==='manage') renderManage();
+}
+
+// ══ MODALS ══
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-bg').forEach(m=>
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+// ══ TOAST ══
+let ttimer;
+const TICS={s:'<i class="fas fa-check-circle"></i>',e:'<i class="fas fa-circle-xmark"></i>',i:'<i class="fas fa-circle-info"></i>',w:'<i class="fas fa-triangle-exclamation"></i>'};
+const TCLS={s:'ts',e:'te',i:'ti',w:'tw'};
+function showToast(h,p,type='s'){
+  const el=document.getElementById('toast');
+  document.getElementById('t-ic').innerHTML=TICS[type]||TICS.i;
+  document.getElementById('t-h').textContent=h;
+  document.getElementById('t-p').textContent=p;
+  el.className=`toast ${TCLS[type]||'ti'} show`;
+  clearTimeout(ttimer); ttimer=setTimeout(()=>el.classList.remove('show'),4000);
+}
+
+// ══ THEME ══
+function applyTheme(){
+  const t=localStorage.getItem('bvTheme')||'light';
+  document.documentElement.setAttribute('data-theme',t);
+  updateThemeBtn(t);
+}
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme');
+  const next=cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  localStorage.setItem('bvTheme',next);
+  updateThemeBtn(next);
+}
+function updateThemeBtn(t){
+  const el=document.getElementById('theme-btn');
+  if(el) el.textContent=t==='dark'?'☀️':'🌙';
+}
+
+// ══ UTILS ══
+function esc(s=''){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function getHostname(url){try{return new URL(url).hostname.replace('www.','');}catch{return url;}}
+function timeAgo(iso){
+  const diff = Date.now() - new Date(iso);
+  const m = Math.floor(diff/60000);
+  if(m<1) return 'just now';
+  if(m<60) return `${m}m ago`;
+  const h = Math.floor(m/60);
+  if(h<24) return `${h}h ago`;
+  const d = Math.floor(h/24);
+  if(d<7) return `${d}d ago`;
+  return new Date(iso).toLocaleDateString();
+}
+</script>
+</body>
+</html>
